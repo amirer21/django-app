@@ -49,5 +49,3 @@ def read(requset, id):
             article = f'<h2>{topic["title"]}</h2>{topic["body"]}'
     return HttpResponse(HTMLTemplate(article))
     #return HttpResponse('Read!'+ id)
-
-#test
