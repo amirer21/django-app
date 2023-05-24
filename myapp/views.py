@@ -11,8 +11,18 @@ topics = [
 #id 마지막이 3이므로 다음은 4
 nextId = 4
 
-def HTMLTemplate(articleTag):
+def HTMLTemplate(articleTag, id=None):
     global topics
+    contextUI = ''
+    if id != None:
+        contextUI = f'''
+             <li>
+                <form action="/delete/" method="post">
+                    <input type="hidden" name="id" value="{id}">
+                    <input type="submit" value="delete">
+                </form>
+            </li>
+        '''        
     ol = ''
     for topic in topics:
         ol += f'<li><a href="/read/{topic["id"]}">{topic["title"]}</a></li>'
@@ -29,7 +39,12 @@ def HTMLTemplate(articleTag):
         </ol>
         {articleTag}
         <ul>
-            <li><a href="/create/">cheate</a></li>
+            <li><a href="/create/">create</a></li>
+            <li><form action="/delete/" method="post">
+                    <input type="hidden" name="id" value="{id}">
+                    <input type="submit" value="delete">
+                </form>
+            </li>
         </ul>
     </body>                   
     </html>
@@ -51,7 +66,7 @@ def read(requset, id):
     for topic in topics:
         if topic['id'] == int(id): #들어오는값은 string이므로 int로 변환
             article = f'<h2>{topic["title"]}</h2>{topic["body"]}'
-    return HttpResponse(HTMLTemplate(article))
+    return HttpResponse(HTMLTemplate(article, id))
     #return HttpResponse('Read!'+ id)
 
 @csrf_exempt
@@ -83,3 +98,19 @@ def create(request):
         #return HttpResponse(request.POST['title'])
         #return HttpResponse(HTMLTemplate('AAA'))
         return redirect(url)
+    
+
+@csrf_exempt
+def delete(request):
+    global topics
+    if request.method == 'POST':
+        id = request.POST['id']
+        print('id :: ', id)
+        newTopics = []
+        for topic in topics:
+            print('topic id :: ', topic['id'])
+            if id is not None:
+                if topic['id'] != int(id):
+                    newTopics.append(topic)
+        topics = newTopics
+        return redirect('/')
